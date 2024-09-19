@@ -96,19 +96,26 @@ contract SwapToken {
     function swapToken(uint256 _orderId) external {
         SwapOrder storage order = orders[_orderId];
 
-        if(order.isCompleted){
+        if (order.isCompleted) {
             revert OrderAlreadyFufilled();
         }
 
-        if(block.timestamp > order.expiry){
+        if (block.timestamp > order.expiry) {
             revert OrderExpired();
         }
 
-        bool success1 = IERC20(order.desiredToken).transferFrom(msg.sender, order.depositor, order.desiredTokenAmt);
-         if (!success1) {
+        bool success1 = IERC20(order.desiredToken).transferFrom(
+            msg.sender,
+            order.depositor,
+            order.desiredTokenAmt
+        );
+        if (!success1) {
             revert TransferFailed();
         }
-         bool success2 = IERC20(order.tokenName).transfer(msg.sender, order.tokenAmount);
+        bool success2 = IERC20(order.tokenName).transfer(
+            msg.sender,
+            order.tokenAmount
+        );
         if (!success2) {
             revert TransferFailed();
         }
