@@ -123,4 +123,30 @@ contract SwapToken {
         // Mark the order as completed
         order.isCompleted = true;
     }
+
+    function cancelOrder(uint _orderId) external {
+        SwapOrder storage order = orders[_orderId];
+        require(
+            msg.sender == order.depositor,
+            "only depositor can cancell this order"
+        );
+
+        if (block.timestamp <= order.expiry) {
+            revert OrderNotExpired();
+        }
+
+        bool success = IERC20(order.tokenName).transfer(
+            order.depositor,
+            order.desiredTokenAmt
+        );
+
+        if (!success) {
+            revert TransferFailed();
+        }
+
+        order.isCompleted = true;
+
+        // Emit event for cancellation
+        emit OrderCancelled(order.depositor, _orderId);
+    }
 }
